@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+
+  .stopwatch {
+    text-align: center;
+    color: white;
+    position: relative;
+    z-index: 1;
+  }
+
+  .display {
+    font-size: 3em;
+    margin-bottom: 20px;
+  }
+
+  button {
+    font-size: 1em;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  .lap-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+
+  .lap-table th, .lap-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+
+  .lap-table th {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  .lap-time {
+    font-size: 1.2em;
+    color: #000;
+  }
+</style>
+</head>
+<body>
+  <video autoplay muted loop class="bg-video">
+    <source src="my video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="stopwatch">
+    <div class="display">00:00:00</div>
+    <button class="start">Start</button>
+    <button class="pause">Pause</button>
+    <button class="reset">Reset</button>
+    <button class="lap">Lap</button>
+    <table class="lap-table">
+      <thead>
+        <tr>
+          <th>Lap</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody class="laps"></tbody>
+    </table>
+  </div>
+<script>
+  let timer;
+  let startTime;
+  let isRunning = false;
+
+  const display = document.querySelector('.display');
+  const startBtn = document.querySelector('.start');
+  const pauseBtn = document.querySelector('.pause');
+  const resetBtn = document.querySelector('.reset');
+  const lapBtn = document.querySelector('.lap');
+  const lapsList = document.querySelector('.laps');
+
+  function formatTime(ms) {
+    const date = new Date(ms);
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+    const milliseconds = Math.floor(date.getUTCMilliseconds() / 10).toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  }
+
+  function updateTime() {
+    const elapsedTime = Date.now() - startTime;
+    display.textContent = formatTime(elapsedTime);
+  }
+
+  function startTimer() {
+    if (!isRunning) {
+      startTime = Date.now();
+      timer = setInterval(updateTime, 10);
+      isRunning = true;
+    }
+  }
+
+  function pauseTimer() {
+    clearInterval(timer);
+    isRunning = false;
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    display.textContent = '00:00:00';
+    isRunning = false;
+    lapsList.innerHTML = ''; // Clear lap times when resetting
+  }
+
+  function lapTime() {
+    const lapTime = formatTime(Date.now() - startTime);
+    const lapItem = document.createElement('tr');
+    lapItem.innerHTML = `
+      <td>${lapsList.children.length + 1}</td>
+      <td class="lap-time">${lapTime}</td>
+    `;
+    lapsList.appendChild(lapItem);
+  }
+
+  startBtn.addEventListener('click', startTimer);
+  pauseBtn.addEventListener('click', pauseTimer);
+  resetBtn.addEventListener('click', resetTimer);
+  lapBtn.addEventListener('click', lapTime);
+</script>
+</body>
+</html>
